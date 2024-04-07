@@ -78,9 +78,8 @@ def search(problem, fringe, heuristic):
         fringe.push(initial_candidate, heuristic(initial_state, problem))
     else:
         fringe.push(initial_candidate)
-
     closed_set = set()
-    print(fringe)
+
     while not fringe.isEmpty():
         candidate = fringe.pop()
         state, actions, cost = candidate

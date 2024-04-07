@@ -10,6 +10,8 @@ import sys
 import inspect
 import heapq, random
 
+from dataclasses import dataclass, field
+from typing import Any
 
 """
  Data structures useful for implementing SearchAgents
@@ -52,30 +54,50 @@ class Queue:
         "Returns true if the queue is empty"
         return len(self.list) == 0
 
-class PriorityQueue:
-    """
-      Implements a priority queue data structure. Each inserted item
-      has a priority associated with it and the client is usually interested
-      in quick retrieval of the lowest-priority item in the queue. This
-      data structure allows O(1) access to the lowest-priority item.
+@dataclass(order=True)
+class PrioritizedItem:
+    priority: int
+    item: Any = field(compare=False)
 
-      Note that this PriorityQueue does not allow you to change the priority
-      of an item.  However, you may insert the same item multiple times with
-      different priorities.
-    """
-    def  __init__(self):
+class PriorityQueue:                            # PriorityQueue que soluciona TypeError: '<' not supported between instances of 'Grid' and 'Grid'
+    def __init__(self):
         self.heap = []
 
     def push(self, item, priority):
-        pair = (priority,item)
+        pair = PrioritizedItem(priority, item)
         heapq.heappush(self.heap,pair)
 
     def pop(self):
-        (priority,item) = heapq.heappop(self.heap)
-        return item
+        pair = heapq.heappop(self.heap)
+        return pair.item
 
     def isEmpty(self):
         return len(self.heap) == 0
+
+#class PriorityQueue:
+#     """
+#       Implements a priority queue data structure. Each inserted item
+#       has a priority associated with it and the client is usually interested
+#       in quick retrieval of the lowest-priority item in the queue. This
+#       data structure allows O(1) access to the lowest-priority item.
+#
+#       Note that this PriorityQueue does not allow you to change the priority
+#       of an item.  However, you may insert the same item multiple times with
+#       different priorities.
+#     """
+#     def  __init__(self):
+#         self.heap = []
+#
+#     def push(self, item, priority):
+#         pair = (priority,item)
+#         heapq.heappush(self.heap,pair)
+#
+#     def pop(self):
+#         (priority,item) = heapq.heappop(self.heap)
+#         return item
+#
+#     def isEmpty(self):
+#         return len(self.heap) == 0
 
 class PriorityQueueWithFunction(PriorityQueue):
     """
