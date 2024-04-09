@@ -67,13 +67,16 @@ def tinyMazeSearch(problem):
     w = Directions.WEST
     return  [s,s,w,s,w,w,s,w]
 
+
+# Funcion de busqueda que toma el problema, los estados ya visitados (generalmente ninguno) y la heuristica usada para ordenar los estados
+# devuelve las acciones realizadas para llegar a la meta del problema
 def search(problem, fringe, heuristic):
     initial_state = problem.getStartState()
     initial_actions = []
     initial_candidate = (initial_state, initial_actions, 0)
 
-    # Usamos isinstance para diferenciar entre algoritmos que usen priorityQueue (Que necesita que le pasemos la prioridad)
-    #   y otras estructuras que no lo necesitan
+    # Usamos isinstance() para diferenciar entre algoritmos que usen priorityQueue (Que necesita que le pasemos la prioridad)
+    # y otras estructuras que no lo necesitan
     if isinstance(fringe, util.PriorityQueue):
         fringe.push(initial_candidate, heuristic(initial_state, problem))
     else:
@@ -90,8 +93,8 @@ def search(problem, fringe, heuristic):
         if state not in closed_set:
             closed_set.add(state)
             candidate_successors = problem.getSuccessors(state)
-            candidate_successors = filter(lambda x: x[0] not in closed_set, candidate_successors)
-            candidate_successors = map(lambda x: (x[0], actions + [x[1]], cost + x[2]), candidate_successors)
+            candidate_successors = filter(lambda x: x[0] not in closed_set, candidate_successors) # Filtro los estados ya explorados
+            candidate_successors = map(lambda x: (x[0], actions + [x[1]], cost + x[2]), candidate_successors) # Le agrego a todos estados la nueva accion y el nuevo costo total
             for candidate in candidate_successors:
                 if isinstance(fringe, util.PriorityQueue):
                     fringe.push(candidate, candidate[2] + heuristic(candidate[0], problem))
@@ -107,23 +110,11 @@ def depthFirstSearch(problem):
 
     To get started, you might want to try some of these simple commands to
     understand the search problem that is being passed in:
-    
-    abiertos <- secuencia(ESTADO_INICIAL(problema))
-    cerrados <- secuencia()
-    mientras NO(VACÍO(abiertos)) hacer:
-        nodo <- PRIMERO(abiertos)
-        si TEST_OBJETIVO(ESTADO(nodo)) entonces:
-            DEVOLVER(SOLUCIÓN(nodo))
-        si NO(CONTIENE(cerrados, ESTADO(nodo))) entonces:
-            AÑADIR(cerrados, ESTADO(nodo))
-            sucesores <- EXPANDIR(nodo, problema)
-            abierto <- INSERTAR(abierto, sucesores)
-    DEVOLVER(FALLO())
     """
 
-    print ("Start:", problem.getStartState())
-    print ("Is the start a goal?", problem.isGoalState(problem.getStartState()))
-    print ("Start's successors:", problem.getSuccessors(problem.getStartState()))
+    #print ("Start:", problem.getStartState())
+    #print ("Is the start a goal?", problem.isGoalState(problem.getStartState()))
+    #print ("Start's successors:", problem.getSuccessors(problem.getStartState()))
 
     return search(problem, util.Stack(), nullHeuristic)
     

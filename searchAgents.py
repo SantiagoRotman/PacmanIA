@@ -308,21 +308,16 @@ class CornersProblem(search.SearchProblem):
         successors = []
         for action in [Directions.NORTH, Directions.SOUTH, Directions.EAST, Directions.WEST]:
             # Add a successor state to the successor list if the action is legal
-            # Here's a code snippet for figuring out whether a new position hits a wall:
-            #   x,y = currentPosition
-            #   dx, dy = Actions.directionToVector(action)
-            #   nextx, nexty = int(x + dx), int(y + dy)
-            #   hitsWall = self.walls[nextx][nexty]
 
             x,y = state[0]
             dx, dy = Actions.directionToVector(action)
             nextx, nexty = int(x + dx), int(y + dy)
-            if not self.walls[nextx][nexty]:
+            if not self.walls[nextx][nexty]: # Si no choca contra una esquina
                 nextState = (nextx, nexty)
                 corners = state[1:]
-                if nextState in self.corners:
+                if nextState in self.corners: # Si el sucesor es una esquina
                     corners = list(corners)
-                    corners[self.corners.index(nextState)] = True
+                    corners[self.corners.index(nextState)] = True # Se marca la esquina como visitada
                     corners = tuple(corners)
                 successors.append(((nextState, *corners), action, 1))
 
@@ -358,24 +353,26 @@ def cornersHeuristic(state, problem):
     """
     corners = problem.corners # These are the corner coordinates
     walls = problem.walls # These are the walls of the maze, as a Grid (game.py)
-
-    "*** YOUR CODE HERE ***"
     
-    def distance(pos, points):
+    # Funcion que toma la posicion actual, las esquinas restantes y
+    # devuelve la distancia minima desde una posicion a una esquina junto con el id que la identifica en la lista corners
+    def distance(pos, corners):
         index, minDist = None, 1e9
-        for curIdx, curPoint  in enumerate(points):
+        for curIdx, curPoint  in enumerate(corners):
             curDist = util.manhattanDistance(pos, curPoint)
             if curDist < minDist:
                 index, minDist = curIdx, curDist
         return index, minDist
 
-    def pathCost(fromPos, points):
+    # Funcion toma la posicion incial y una lista de las esquinas no visitadas y
+    # devuelve el costo del camino de partir de la posicion inicial y recorrer todas las esquinas
+    def pathCost(fromPos, corners):
         pos, pathLength = fromPos, 0
-        while points != []:
-            index, dist = distance(pos, points)
+        while corners != []:
+            index, dist = distance(pos, corners)
             pathLength += dist
-            pos = points[index]
-            points.pop(index)
+            pos = corners[index]
+            corners.pop(index)
         return pathLength
 
     pos = state[0]
@@ -479,16 +476,16 @@ def foodHeuristic(state, problem):
       problem.heuristicInfo['wallCount'] = problem.walls.count()
     Subsequent calls to this heuristic can access problem.heuristicInfo['wallCount']
     """
-    position, foodGrid = state
+    pos, foodGrid = state
     remainingFood = foodGrid.asList()
-    acum = 0
+    pathLen = 0
     while len(remainingFood) > 0:
-      minimum = min(remainingFood, key=lambda x: util.manhattanDistance(position, x))
-      remainingFood.remove(minimum)
-      acum += util.manhattanDistance(position, minimum)
-      position = minimum 
+        minimum = min(remainingFood, key=lambda x: util.manhattanDistance(pos, x)) # comida con minima distancia de la posicion a una comida
+        remainingFood.remove(minimum) # "Como" la comida mas cercana
+        pathLen += util.manhattanDistance(pos, minimum) # Añado la distancia al costo total del camino
+        pos = minimum # Me muevo a la posicion de la comida
 
-    return acum
+    return pathLen # Se devuelve la longitud del camino que come todas las comidas desde la posicion dada
 
 class ClosestDotSearchAgent(SearchAgent):
     "Search for all food using a sequence of searches"
